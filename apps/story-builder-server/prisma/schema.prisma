@@ -1,0 +1,65 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Story {
+  id             String          @id @default(cuid())
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  title          String?
+  summary        String?
+  author         String?
+  pages          Page[]
+  choices        Choice[]
+  aiInteractions AiInteraction[]
+}
+
+model Choice {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  description String?
+  nextPage    String?
+  story       Story?   @relation(fields: [storyId], references: [id])
+  storyId     String?
+}
+
+model AiInteraction {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  query     String?
+  response  String?
+  story     Story?   @relation(fields: [storyId], references: [id])
+  storyId   String?
+  user      User?    @relation(fields: [userId], references: [id])
+  userId    String?
+}
+
+model Page {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  content   String?
+  imageUrl  String?
+  story     Story?   @relation(fields: [storyId], references: [id])
+  storyId   String?
+}
+
+model User {
+  id             String          @id @default(cuid())
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  firstName      String?
+  lastName       String?
+  username       String          @unique
+  email          String?         @unique
+  password       String
+  roles          Json
+  aiInteractions AiInteraction[]
+}
